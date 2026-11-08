@@ -1,16 +1,16 @@
 # Are News Popularity Predictors Stable Across Resampled Training Data?
 
 ## Group
-Deepsick (Canvas group number: TO CONFIRM); Samantha, Crystal, Linglan.
+Deepsick (Canvas group number: 1026513); Samantha, Crystal, Linglan.
 
 ## Changes since the proposal
-Following feedback, use five expanding-window folds instead of three, add a training-mean comparator, and run 20 seven-day block-bootstrap selection refits. Reserve a development holdout for this checkpoint so the final test remains untouched. For the future elastic-net-minus-lasso MAE difference, an interval spanning zero is inconclusive; an upper endpoint <=0 supports no increase.
+We increased expanding-window CV from three to five folds to choose the Lasso penalty more reliably. We added a training-mean predictor to check whether Lasso improves on a simple reference and ran 20 seven-day block-bootstrap refits to check the selection pipeline before scaling to 200. We set aside a development holdout to estimate checkpoint error after tuning and preserve the final test for the end. We defined the future Elastic Net minus Lasso MAE comparison in advance: a paired interval with upper endpoint at or below zero supports no increase. An interval spanning zero is inconclusive.
 
 ## Data
 Loaded the official UCI CSV: 39,644 articles, 58 candidate inputs; retain 44. Output: log(1 + shares). Exclude nine keyword and three reference-share statistics, redundant is_weekend and reference-category weekday_is_sunday; URL is excluded and timedelta only orders days. Drop no rows. Fixed rule: lexical ratios outside [0,1] become missing, then training-only median imputation. No such anomalies occur in development.
 
 ## Split
-Latest 145 observed publication days (9,112 articles; 2014-08-09 through 2014-12-31) remain untouched until all final choices are frozen. Earlier 579 days: first 483 days (24,635 articles) for training/tuning, last 96 (5,897; 2014-05-05 through 2014-08-08) for checkpoint evaluation. Five expanding-window folds keep whole days together; no shuffling. Bootstrap seeds: 542 for evaluation, 543 for refits.
+The final test set is the latest 145 observed publication days (9,112 articles, 2014-08-09 through 2014-12-31). We reserve it until all model and evaluation choices are frozen, then evaluate it once. The earlier 579 days comprise 483 days for training and tuning (24,635 articles) and a 96-day checkpoint holdout (5,897 articles, 2014-05-05 through 2014-08-08). The five expanding-window folds keep whole days together in chronological order. Bootstrap seeds are 542 for evaluation and 543 for refits.
 
 ## Baseline
 Lasso with fold-local median imputation and standardization. Tune alpha over 20 logarithmically spaced values from 0.0001 to 1, minimizing mean fold MAE. Selected alpha: 0.00069519. Refit on all 24,635 training articles.
